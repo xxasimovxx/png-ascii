@@ -1,4 +1,6 @@
 var fs = require("fs"),
+
+
   PNG = require("pngjs").PNG;
 
 fs.createReadStream("example.png")
