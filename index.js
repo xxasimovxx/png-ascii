@@ -1,42 +1,50 @@
 const fs = require("fs");
-var im = require('imagemagick');
+const sharp = require("sharp");
 
 PNG = require("pngjs").PNG;
-function Resize(){
- im.resize({
-  srcPath:  'asd.png',
-  dstPath:  'example.png',
-  width:200
-}, function(err, stdout, stderr){
-  if (err) throw err
-  console.log('resized')
-});}
+//sharp("asd.png")
+//  .resize({ width: 200 })
+//  .toFile("example.png")
+//  .then(function (newFileInfo) {
+//    // newFileInfo holds the output file properties
+//    console.log("Success");
+//  })
+//  .catch(function (err) {
+//    console.log(err);
+//  });
+async function resizeImg(){
+await sharp("asd.png")
+  .resize({ width: 200 })
+  .png()
+  .toBuffer()
+  .then((data) => {
+    fs.writeFile("example.png", data)
+      .then(() => {
+        console.log("asd");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  })
+  .catch((err) => console.log(err));
+//while(!fs.existsSync("example.png")){
 
-let promise = new Promise(function(resolve,reject){
-  Resize()
-  if(fs.existsSync("example.png")){
-    resolve("data")
-  }
-  reject(new Error("adadasd"))
-
-})
-
-makeImg()
-async function makeImg(){
-await promise.then(fs.createReadStream("example.png")
+//  if(fs.existsSync("example.png")){break}
+//}
+}
+resizeImg()
+fs.createReadStream("example.png")
   .pipe(
     new PNG({
       filterType: 4,
     }),
   )
-  .on("parsed", function() {
-    var string = "";
+  .on("parsed", function () {
+    let string = "";
     for (var y = 0; y < this.height; y++) {
-      string += "\n";
       for (var x = 0; x < this.width; x++) {
-        //if (x % 2 == 0 && y % 2 == 0) {
-        string += "  ";
         var idx = (this.width * y + x) << 2;
+
         const brightness =
           (this.data[idx] + this.data[idx + 1] + this.data[idx + 2]) / 3;
 
@@ -56,9 +64,9 @@ await promise.then(fs.createReadStream("example.png")
           string += ".";
         }
       }
-
     }
-    fs.writeFile("out.txt", string, function(err) {
-      if (err) throw err;
+
+    fs.writeFileSync("out.txt", string, function (err) {
+      console.log(err);
     });
-  }),error => console.log(error))}
+  });
