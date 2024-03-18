@@ -1,24 +1,21 @@
 var fs = require("fs");
-var path = require('path');
+var path = require("path");
 PNG = require("pngjs").PNG;
 const sharp = require("sharp");
 
-const promise = fs.promises.readFile(path.join('asd.png'));
+const promise = fs.promises.readFile(path.join("asd.png"));
 
-Promise.resolve(promise).then(function(buffer){
-     resizeImage(buffer)
+Promise.resolve(promise).then(function (buffer) {
+  imgCreation(buffer);
 });
 
-let string = "";
-async function resizeImage(buffer) {
-    await sharp(buffer).resize(200).toFile("example.png");
-    makeImg(string)
-
-       fs.writeFileSync("out.txt", string, err => {
-         console.log(err +"asd");
-       });
+async function imgCreation(buffer) {
+  await sharp(buffer).resize({ width: 200 }).toFile("example.png");
+  makeImg();
 }
-function makeImg(string) {
+
+function makeImg() {
+  let string = "";
 
   fs.createReadStream("example.png")
     .pipe(
@@ -28,8 +25,9 @@ function makeImg(string) {
     )
     .on("parsed", function () {
       for (var y = 0; y < this.height; y++) {
-        string += "/n"
+        string += "\n";
         for (var x = 0; x < this.width; x++) {
+          string += "  ";
           var idx = (this.width * y + x) << 2;
 
           const brightness =
@@ -52,7 +50,8 @@ function makeImg(string) {
           }
         }
       }
-
+      fs.writeFileSync("out.txt", string, (err) => {
+        console.log(err + "asd");
+      });
     });
-
 }
